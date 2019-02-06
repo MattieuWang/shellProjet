@@ -1,0 +1,121 @@
+#!/bin/bash
+
+
+ERR_CMD="echec,commande incorrecte"
+ERR_PSWD="echec,mots de passe incorrects"
+ERR_USER="echec,utilisateur ou machine inconnu"
+
+
+if [ !$(echo $PATH | grep -q "$pwd") ]     #这里把当前目录添加到PATH，还是不对
+then
+	PATH=$PATH:$(pwd)
+fi
+
+if [ ! -f known_hosts ]		#si known_hosts n'est pas cree, creer le fichier
+then 
+	touch known_hosts		#known_hosts sauvegarder nom d'utilisateur, nom de machine et mot de passe
+fi
+
+
+if [ $# -eq 0 ]
+then
+	echo $ERR_CMD
+elif [ $# -eq 3 -a "$1" == "-connect" ]		# -connect nom machine
+then
+	./connect $2 $3		#donner utilisateur et machine
+	cd ..
+
+elif [ $# -eq 1 -a $1 == "-admin" ]	# -admin
+then
+	if [ ! -f passwd ]
+	then
+		touch passwd
+		echo "creer votre mot de passe: "
+		read -s pswd
+		echo $pswd > passwd 
+		chmod 000 passwd
+	else
+		count=0
+		chmod +r passwd	
+		while [ $count -le 3 ]
+		do
+			echo -n "password: "
+			read -s pswd
+			echo ""
+			if [ $(grep -ce "^$pswd$" passwd) -eq 0 ]
+			then
+				echo $ERR_PSWD
+				count=$(expr $count + 1)
+				if [ $count -eq 3 ]
+				then
+					chmod 000 passwd
+					exit
+				fi
+			else
+				clear
+				echo "vous etes dans le mode admin"
+				chmod 000 passwd
+				break
+			fi
+		done
+	fi
+######################################################################################################
+	cmd=" "
+	until [ "$cmd" == "exit" ]
+	do
+		read -p "rvsh>" cmd
+		cmd=" "$cmd
+		array=(${cmd/ /})
+		if [ ${array[0]} == "host" -a ${#array[*]} -eq 2 ] 	#commande host demande 2 arg
+		then
+			./host ${array[0]} ${array[1]}
+		elif [ ${array[0]} == "connect" -a ${#array[*]} -eq 3 ]
+		then
+			./connect ${array[1]} ${array[2]}		
+		elif [ ${#array[0]} -eq 1 ]
+		then
+			if [ "${array[0]}" == "list" ]
+			then
+				sed -e 's/\([^ ]*\) \([^ ]*\).*/\1 \2/' known_hosts
+			elif [ "${array[0]}" == "exit" ]
+			then
+				break
+			else
+				echo $ERR_CMD
+			fi
+		else
+			echo $ERR_CMD	
+		fi			
+		
+	done
+fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

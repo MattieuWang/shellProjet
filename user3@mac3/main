@@ -1,0 +1,33 @@
+#!/bin/bash
+cmd=""
+until [ "$cmd" == "exit" ]
+do
+	read -p "$1@$2>" cmd	#user@machine> cmd
+	if [ "$cmd" == "who" ]
+	then
+		echo "who"
+	elif [ "$cmd" == "rusers" ]
+	then
+		echo "who"
+	elif [ "$cmd" == "rhost" ]
+	then
+		echo "who"
+	elif [ "$cmd" == "connect" ]
+	then
+		echo "who"
+	elif [ "$cmd" == "su" ]
+	then
+		echo "who"
+	elif [ "$cmd" == "finger" ]
+	then
+		echo "who"
+	elif [ "$cmd" == "write" ]
+	then
+		echo "who"
+	elif [ "$cmd" == "exit" ]
+	then 
+		break
+	else 
+		echo "echec,commande incorrecte"
+	fi			
+done

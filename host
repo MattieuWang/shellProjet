@@ -1,0 +1,33 @@
+#!/bin/bash
+
+if [ "$1" == "host" -a "$2" == "-add" ]      # host -add  pour ajouter un utilisateur
+then
+	read -p "nom d'utiisateur: " nom
+	read -p "nom de machine: " nom_machine
+	read -p "mot de passe: " mot_de_passe
+	echo "$nom $nom_machine $mot_de_passe" >> known_hosts
+	echo "fonction reussit"
+elif [ "$1" == "host" -a "$2" == "-del" ]	#host -del pour detruire
+then
+	read -p "nom d'utiisateur: " nom
+	read -p "nom de machine: " nom_machine
+	declare -a lines
+	touch temp     #creer un fichier temporaire
+	>temp
+	trouve=$(grep -ce "$nom $nom_machine" known_hosts)
+	sed '/'$nom' '$nom_machine'/d' known_hosts > temp   #supprimer la ligne
+	>known_hosts
+	while read line
+	do
+		echo $line >> known_hosts          #mettre les info temporaires dans known_hosts
+	done < temp
+	rm temp		# detuire le temporaire
+	if [ $trouve -eq 0 ]
+	then
+		echo $ERR_USER
+	else
+		echo "fonction reussit"
+	fi
+else
+	echo $ERR_CMD		
+fi
