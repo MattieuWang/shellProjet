@@ -1,30 +1,35 @@
 #!/bin/bash
 cmd=""
-until [ "$cmd" == "exit" ]
+until [ "$cmd" == " exit" ]
 do
 	read -p "$1@$2>" cmd	#user@machine> cmd
-	if [ "$cmd" == "who" ]
+	cmd=" "$cmd
+	arr=(${cmd/ /})
+	if [ "${arr[0]}" == "who" ]
 	then
 		echo "who"
-	elif [ "$cmd" == "rusers" ]
+	elif [ "${arr[0]}" == "rusers" ]
 	then
 		echo "who"
-	elif [ "$cmd" == "rhost" ]
+	elif [ "${arr[0]}" == "rhost" ]
 	then
 		echo "who"
-	elif [ "$cmd" == "connect" ]
+	elif [ "${arr[0]}" == "connect" ]
 	then
 		echo "who"
-	elif [ "$cmd" == "su" ]
+	elif [ "${arr[0]}" == "su" ]
+	then
+		./su
+	elif [ "${arr[0]}" == "finger" ]
 	then
 		echo "who"
-	elif [ "$cmd" == "finger" ]
+	elif [ "${arr[0]}" == "write" -a ${#arr[*]} -eq 3 ]
 	then
-		echo "who"
-	elif [ "$cmd" == "write" ]
+		./write ${arr[1]} ${arr[2]} $1 $2
+	elif [ "${arr[0]}" == "passwd" ]
 	then
-		echo "who"
-	elif [ "$cmd" == "exit" ]
+		./password $1 $2
+	elif [ "${arr[0]}" == "exit" ]
 	then 
 		break
 	else 

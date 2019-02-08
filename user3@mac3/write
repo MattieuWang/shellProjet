@@ -1,0 +1,14 @@
+#!/bin/bash
+ERR_USER="echec,utilisateur ou machine inconnu"
+user=$(echo $1|sed "s/\(.*\)@\(.*\)/\1/")
+mac=$(echo $1|sed "s/\(.*\)@\(.*\)/\2/")
+msg=$2
+echo "-$user- -$mac-"
+chmod +r ../known_hosts
+if [ $(grep -ce "$user $mac" ../known_hosts) -eq 0 ]
+then 
+	echo $ERR_USER
+	exit
+fi
+cd ../$user@$mac
+echo "$(date) $3@$4: $msg" >> $user@$mac/msg

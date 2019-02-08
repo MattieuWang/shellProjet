@@ -1,0 +1,23 @@
+#!/bin/bash
+
+read -p "nom d'utilisateur: " user
+read -p "nom de machine: " mac
+
+if [ $(grep -ce "$user $mac" ../known_hosts) -eq 0 ]	
+then
+	echo $ERR_USER
+	exit
+else 
+	echo -n "password: "
+	read -s passwd
+	login=0
+	if [ $(grep -ce "$user $mac $passwd" ../known_hosts) -eq 0 ]
+	then
+		echo "echec,mots de passe incorrects"
+	else
+		clear
+		cd ../$user@$mac	#user@machine
+		./main $user $mac
+	fi
+fi
+
