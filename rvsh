@@ -14,6 +14,7 @@ fi
 if [ ! -f known_hosts ]		#si known_hosts n'est pas cree, creer le fichier
 then 
 	touch known_hosts		#known_hosts sauvegarder nom d'utilisateur, nom de machine et mot de passe
+	chmod 000 known_hosts
 fi
 
 
@@ -61,28 +62,23 @@ then
 	fi
 ######################################################################################################
 	cmd=" "
-	until [ "$cmd" == "exit" ]
+	until [ "$cmd" == " exit" ]
 	do
 		read -p "rvsh>" cmd
 		cmd=" "$cmd
 		array=(${cmd/ /})
 		if [ ${array[0]} == "host" -a ${#array[*]} -eq 2 ] 	#commande host demande 2 arg
 		then
-			./host ${array[0]} ${array[1]}
+			./host ${array[1]}
+		elif [ ${array[0]} == "users" -a ${#array[*]} -eq 2 ]
+		then
+			./users ${array[1]}
 		elif [ ${array[0]} == "connect" -a ${#array[*]} -eq 3 ]
 		then
-			./connect ${array[1]} ${array[2]}		
-		elif [ ${#array[0]} -eq 1 ]
+			./connect ${array[1]} ${array[2]}	
+		elif [ ${array[0]} == "exit" ]
 		then
-			if [ "${array[0]}" == "list" ]
-			then
-				sed -e 's/\([^ ]*\) \([^ ]*\).*/\1 \2/' known_hosts
-			elif [ "${array[0]}" == "exit" ]
-			then
-				break
-			else
-				echo $ERR_CMD
-			fi
+			exit
 		else
 			echo $ERR_CMD	
 		fi			

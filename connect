@@ -1,5 +1,6 @@
 #!/bin/bash
 
+chmod +r known_hosts
 if [ $(grep -ce "$1 " known_hosts) -eq 0 -o $(grep -ce " $2 " known_hosts) -eq 0 ]	#这个判断条件还要改
 then
 	echo $ERR_USER
@@ -29,4 +30,4 @@ else
 		./main $1 $2
 	fi
 fi
-
+chmod 000 known_hosts

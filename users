@@ -1,0 +1,98 @@
+#!/bin/bash
+
+ERR_USER="echec,utilisateur ou machine inconnu"
+ERR_CMD="echec,commande incorrecte"
+read -p "nom d'utilisateur: " user
+read -p "nom de machine: " mac
+if [ "$1" == "passwd" ]
+then
+	if [ ! -d "$user@$mac" ]
+	then
+		echo $ERR_USER
+		exit
+	fi
+	correct=0
+	pswd=""
+	while [ $correct -eq 0 ]
+	do
+		echo -n "le nouveau mot de passe: "
+		read -s pswd
+		echo ""
+		echo -n "verifier le mot de passe: "
+		read -s npswd
+		echo ""
+		if [ $npswd == $pswd ]
+		then
+			correct=1
+			echo "vous avez change le mot de passe de $user@$mac"
+		else
+			echo "mot de passe incorect"
+		fi
+	done
+	chmod +rw $user@$mac/passwd
+	chmod +rw known_hosts
+	echo $pswd > $user@$mac/passwd	
+	sed -i "s/$user $mac .*/$user $mac $pswd/" known_hosts
+	chmod 000 $user@$mac/passwd
+	chmod 000 known_hosts
+elif [ "$1" == "access" ]
+then
+	if [ ! -d "$user@$mac" ]
+	then
+		echo $ERR_USER
+		exit
+	fi
+	cat $user@$mac/known_hosts
+	echo "commande <add user machine> pour ajouter l'acces a cet utilisateur"
+	echo "commande <del user machine> pour enlever l'acces a cet utilisateur"
+	echo "commande <exit> pour finir la fonction"
+	cmd=" "
+	until [ "$cmd" == " exit" ]
+	do
+		read -p ">" cmd
+		cmd=" "$cmd
+		arr=(${cmd/ /})
+		#echo "-${arr[0]}- -${arr[1]}- -${arr[2]}-" 
+		if [ $(grep -ce "${arr[1]} ${arr[2]}" known_hosts) -eq 0 ]
+		then
+			echo "$ERR_USER"
+		elif [ ${arr[0]} == "add" ]
+		then
+			if [ $(grep -ce "${arr[1]} ${arr[2]}" $user@$mac/known_hosts) -eq 0 ]
+			then
+				echo "${arr[1]} ${arr[2]}" >> $user@$mac/known_hosts
+				cat $user@$mac/known_hosts
+			fi
+		elif [ ${arr[0]} == "del" ]
+		then
+			if [ $(grep -ce "${arr[1]} ${arr[2]}" $user@$mac/known_hosts) -ne 0 ]
+			then 
+				sed -i "/${arr[1]} ${arr[2]}/d" $user@$mac/known_hosts
+				cat $user@$mac/known_hosts
+			fi
+		elif [ ${arr[0]} == "exit" ]
+		then
+			clear
+			break
+		else  
+			echo $ERR_CMD
+		fi
+	done
+	
+elif [ "$1" == "create" ]
+then
+	if [ -d "$user@$mac" ]
+	then 
+		echo "l'utilisateur deja existe"
+		exit
+	fi
+	echo -n "mot de passe: "
+	read -s passwd
+	mkdir $user@$mac
+	unzip creer_n_uti.zip -d $user@$mac
+	echo "$passwd" > $user@$mac/passwd 
+	chmod 000 $user@$mac/passwd
+	echo "$user $mac $passwd" >> known_hosts
+else
+	echo "echec,commande inconnue"
+fi

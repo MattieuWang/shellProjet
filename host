@@ -1,13 +1,21 @@
 #!/bin/bash
 
-if [ "$1" == "host" -a "$2" == "-add" ]      # host -add  pour ajouter un utilisateur
+chmod +rw known_hosts
+if [ "$1" == "-add" ]      # host -add  pour ajouter un utilisateur
 then
 	read -p "nom d'utiisateur: " nom
 	read -p "nom de machine: " nom_machine
-	read -p "mot de passe: " mot_de_passe
-	echo "$nom $nom_machine $mot_de_passe" >> known_hosts
-	echo "fonction reussit"
-elif [ "$1" == "host" -a "$2" == "-del" ]	#host -del pour detruire
+	if [ -d $nom@$nom_machine ] 	# l'utilisateur doit deja exister
+	then
+		echo -n "mot de passe: "
+		read -s mot_de_passe
+		echo "$nom $nom_machine $mot_de_passe" >> known_hosts
+		echo "fonction reussit"
+	else
+		echo "l'utilisateur n'existe pas"
+		echo "vous devriez le creer par la commande <users>"
+	fi
+elif [ "$1" == "-del" ]	#host -del pour detruire
 then
 	read -p "nom d'utiisateur: " nom
 	read -p "nom de machine: " nom_machine	
@@ -21,3 +29,4 @@ then
 else
 	echo $ERR_CMD		
 fi
+chmod 000 known_hosts
