@@ -1,8 +1,28 @@
 #!/bin/bash
 cmd=""
+if [ $(stat -c "%s" msg) -ge 10 ]	
+then
+	echo "vous avez recu plusieurs messages dans votre boite de message:"
+	cat msg
+	echo > msg
+fi
+
+echo -n "$1@$2>"
 until [ "$cmd" == " exit" ]
 do
-	read -p "$1@$2>" cmd	#user@machine> cmd
+	read -t 1 cmd	#user@machine> cmd
+	if [ "$cmd" == "" ]
+	then
+		if [ $(stat -c "%s" msg) -ge 10 ]	
+		then
+			cat msg
+			echo > msg
+			echo -n "$1@$2>"
+			continue
+		fi
+		continue
+	fi
+	#read -t 3 cmd	#user@machine> cmd
 	cmd=" "$cmd
 	arr=(${cmd/ /})
 	if [ "${arr[0]}" == "who" ]
@@ -23,7 +43,7 @@ do
 	elif [ "${arr[0]}" == "finger" ]
 	then
 		echo "who"
-	elif [ "${arr[0]}" == "write" -a ${#arr[*]} -eq 3 ]
+	elif [ "${arr[0]}" == "write" -a ${#arr[*]} -ge 3 ]
 	then
 		./write ${arr[1]} ${arr[2]} $1 $2
 	elif [ "${arr[0]}" == "passwd" ]
@@ -31,8 +51,10 @@ do
 		./password $1 $2
 	elif [ "${arr[0]}" == "exit" ]
 	then 
+		sed -i "/$1 $2/d" ../status 	#enlever le status d'etre en linge
 		break
 	else 
 		echo "echec,commande incorrecte"
 	fi			
+	echo -n "$1@$2>"
 done
