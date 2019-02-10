@@ -2,22 +2,30 @@
 
 read -p "nom d'utilisateur: " user
 read -p "nom de machine: " mac
-
+chmod +r ../known_hosts
 if [ $(grep -ce "$user $mac" ../known_hosts) -eq 0 ]	
 then
 	echo $ERR_USER
 	exit
-else 
-	echo -n "password: "
-	read -s passwd
-	login=0
-	if [ $(grep -ce "$user $mac $passwd" ../known_hosts) -eq 0 ]
-	then
-		echo "echec,mots de passe incorrects"
-	else
-		clear
-		cd ../$user@$mac	#user@machine
-		./main $user $mac
-	fi
 fi
+if [ $(grep -ce "$user $mac" ../status) -eq 1 ]	
+then
+	echo "l'utilisateur est deja en ligne"
+	exit
+fi
+echo -n "password: "
+read -s passwd
+login=0
+if [ $(grep -ce "$user $mac $passwd" ../known_hosts) -eq 0 ]
+then
+	echo "echec,mots de passe incorrects"
+else
+	clear
+	echo "$user $mac 1" >> ../status
+	cd ../$user@$mac	#user@machine
+	./main $user $mac
+fi
+chmod 000 ../known_hosts
+
+
 
