@@ -1,0 +1,32 @@
+#!/bin/bash
+
+user=$1
+mac=$2
+chmod +r ../known_hosts
+chmod +r known_hosts
+if [ $(grep -ce "$1 $2" ../known_hosts) -eq 0 ]
+then
+	echo "echec,utilisatuer inconnu"
+	exit
+fi
+if [ $(grep -ce "$1 $2" known_hosts) -eq 0 ]
+then
+	echo "echec,vous n'avez pas le droit d'access"
+	exit
+fi
+
+echo -n "password: "
+read -s passwd
+if [ $(grep -ce "$1 $2 $passwd" ../known_hosts) -eq 1 ]
+then
+	clear
+	echo "vous avez connecte $1@$2"
+	cd ../$1@$2	#user@machine
+	./main $1 $2
+else
+	echo "echec,mots de passe incorrects"
+fi
+chmod 000 ../known_hosts
+chmod 000 known_hosts
+
+

@@ -36,7 +36,7 @@ do
 		echo "who"
 	elif [ "${arr[0]}" == "connect" ]
 	then
-		echo "who"
+		./connect ${arr[1]} ${arr[2]}
 	elif [ "${arr[0]}" == "su" ]
 	then
 		./su
@@ -45,7 +45,14 @@ do
 		echo "who"
 	elif [ "${arr[0]}" == "write" -a ${#arr[*]} -ge 3 ]
 	then
-		./write ${arr[1]} ${arr[2]} $1 $2
+		msg=""
+		len=$(expr ${#arr[*]} - 1)
+		for i in $(seq 2 $len)
+		do
+			msg="$msg+${arr[i]}"
+			echo $msg
+		done
+		./write ${arr[1]} $msg $1 $2	#write user@mac msg
 	elif [ "${arr[0]}" == "passwd" ]
 	then
 		./password $1 $2

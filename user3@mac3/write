@@ -3,12 +3,21 @@ ERR_USER="echec,utilisateur ou machine inconnu"
 user=$(echo $1|sed "s/\(.*\)@\(.*\)/\1/")
 mac=$(echo $1|sed "s/\(.*\)@\(.*\)/\2/")
 msg=$2
-echo "-$user- -$mac-"
+msg=$(echo $msg|sed "s/^+\(.*\)/\1/"|sed "s/+/ /g")
+echo "-$msg-"
 chmod +r ../known_hosts
 if [ $(grep -ce "$user $mac" ../known_hosts) -eq 0 ]
 then 
 	echo $ERR_USER
 	exit
 fi
-cd ../$user@$mac
-echo "$(date) $3@$4: $msg" >> $user@$mac/msg
+if [ $(grep -ce "$user $mac" ../status) -eq 0 ]
+then
+	echo "$user@$mac est hors ligne,le message sera renseigne dans le message-box"
+	echo "$(date) $3@$4: $msg" >> ../$user@$mac/msg
+else
+	
+	addr=$(grep -e "$user $mac" ../status |sed "s/$user $mac \(.*\)/\1/" )
+	echo "$(date) $3@$4: $msg" >> ../$user@$mac/msg
+fi
+
